@@ -1,0 +1,1 @@
+py -3.14 -m PyInstaller --noconsole --onefile --icon=rain.ico rain_app.py

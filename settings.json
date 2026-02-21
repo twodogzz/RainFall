@@ -1,0 +1,5 @@
+{
+    "data_file": "rain_data.csv",
+    "threshold_mm": 10.0,
+    "period_days": 5
+}
