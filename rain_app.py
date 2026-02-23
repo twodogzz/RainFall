@@ -14,8 +14,8 @@ def load_settings():
     # Default settings
     defaults = {
         "data_file": "rain_data.csv",
-        "threshold_mm": 20.0,
-        "period_days": 5
+        "threshold_mm": 10.0, # Steve's rule of thumb for lawn watering = 10 mm
+        "period_days": 7 # Steve's rule of thumb for lawn watering = 7 days
 }
 
     if not os.path.exists(SETTINGS_FILE):
@@ -51,7 +51,11 @@ class RainApp(tk.Tk):
         
         self.title("Rainfall Logger")
         self.geometry("900x600")
-        self.iconbitmap("rain.ico")
+        try:
+            self.iconbitmap("rain.ico")
+        except Exception:
+            # Ignore missing or invalid icon on systems without the file
+            pass
 
         self.records = []  # list of dicts
 
@@ -379,6 +383,9 @@ class RainApp(tk.Tk):
         tk.Label(dash_frame, text="Last watering date:").grid(row=2, column=0, sticky="e")
         self.lbl_last_watering = tk.Label(dash_frame, text="-")
         self.lbl_last_watering.grid(row=2, column=1, sticky="w")
+        tk.Label(dash_frame, text="Days since last watering:").grid(row=2, column=2, sticky="e")
+        self.lbl_days_since_watering = tk.Label(dash_frame, text="-")
+        self.lbl_days_since_watering.grid(row=2, column=3, sticky="w")
 
         # Row 3 — Last rainfall date + days since
         tk.Label(dash_frame, text="Last rainfall date:").grid(row=3, column=0, sticky="e")
@@ -549,14 +556,25 @@ class RainApp(tk.Tk):
             return
         item_id = sel[0]
         values = self.tree.item(item_id, "values")
-        self.entry_date.delete(0, tk.END)
-        self.entry_date.insert(0, values[0])
+        try:
+            # DateEntry supports set_date; prefer that over manipulating contents
+            self.entry_date.set_date(values[0])
+        except Exception:
+            self.entry_date.delete(0, tk.END)
+            self.entry_date.insert(0, values[0])
         self.entry_rain.delete(0, tk.END)
         self.entry_rain.insert(0, values[1])
         self.entry_bom.delete(0, tk.END)
         self.entry_bom.insert(0, values[2])
         self.entry_notes.delete(0, tk.END)
         self.entry_notes.insert(0, values[5])
+        # Restore the watered checkbox from the selected row (values[6])
+        try:
+            watered_val = values[6]
+        except Exception:
+            watered_val = "No"
+        self.var_watered.set(True if str(watered_val).strip().lower() == "yes" else False)
+    
 
     # ---------- Table & dashboard refresh ----------
 
@@ -659,11 +677,13 @@ class RainApp(tk.Tk):
         else:
             self.lbl_watering.config(text="No watering needed", bg="green", fg="white")
 
-        # Last watering date
+        # Last watering date + days since
         if last_watering_date is None:
             self.lbl_last_watering.config(text="-")
+            self.lbl_days_since_watering.config(text="-")
         else:
             self.lbl_last_watering.config(text=last_watering_date.strftime(DATE_FMT))
+            self.lbl_days_since_watering.config(text=str((today - last_watering_date).days))
 
         # Last rainfall date + days since
         if last_rain_date is None:

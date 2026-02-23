@@ -1,4 +1,4 @@
-('E:\\SoftwareProjects\\GithubRepos\\RainFall\\build\\rain_app\\PYZ-00.pyz',
+('E:\\SoftwareProjects\\RainFall\\build\\rain_app\\PYZ-00.pyz',
  [('__future__',
    'C:\\Users\\wayne\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\__future__.py',
    'PYMODULE'),
