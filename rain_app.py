@@ -338,15 +338,15 @@ class RainApp(tk.Tk):
 
         columns = ("Date", "Rain_mm", "BOM_mm", "Effective_mm", "Moisture", "Notes", "Watered")
         
-        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical")
+        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings", yscrollcommand=scrollbar.set)
         
         for col in columns:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=100 if col != "Notes" else 250, anchor="center")
-            self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
-        self.tree.configure(yscroll=scrollbar.set)
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.config(command=self.tree.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         self.tree.bind("<<TreeviewSelect>>", self._on_select_row)
